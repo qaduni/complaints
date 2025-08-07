@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}تتبع الشكوى{% endblock %}
+{% block content %}
+<h2 class="mb-4">تفاصيل الشكوى</h2>
+<p><strong>عنوان الشكوى:</strong> {{ complaint.title }}</p>
+<p><strong>محتوى الشكوى:</strong> {{ complaint.content }}</p>
+<p><strong>الحالة:</strong>
+  {% if complaint.status == "waiting" %}
+    <span class="badge bg-warning text-dark">قيد الانتظار</span>
+  {% elif complaint.status == "in process" %}
+    <span class="badge bg-info text-dark">قيد المعالجة</span>
+  {% elif complaint.status == "complete" %}
+    <span class="badge bg-success">مكتملة</span>
+  {% else %}
+    <span class="badge bg-secondary">غير معروف</span>
+  {% endif %}
+</p>
+<p><strong>تاريخ الإرسال:</strong> {{ complaint.created_at.strftime("%Y-%m-%d %H:%M") }}</p>
+{% endblock %}

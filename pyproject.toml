@@ -1,0 +1,15 @@
+[project]
+name = "complaints-qu-edu-iq"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "flask>=3.1.1",
+    "flask-bcrypt>=1.0.1",
+    "flask-limiter>=3.12",
+    "flask-login>=0.6.3",
+    "flask-sqlalchemy>=3.1.1",
+    "flask-wtf>=1.2.2",
+    "openpyxl>=3.1.5",
+]
