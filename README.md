@@ -29,7 +29,7 @@ Supports Arabic language with RTL layout and includes:
 ## Requirements
 
 - Python 3.11+
-- `uv` package manager (or `pip` if preferred)
+- `uv` package manager
 - SQLite (default database)
 
 ---
@@ -39,8 +39,8 @@ Supports Arabic language with RTL layout and includes:
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/ORG_NAME/REPO_NAME.git
-   cd REPO_NAME
+   git clone https://github.com/qaduni/complaints.git
+   cd complaints
 
 2. Install dependencies (using uv):
 
