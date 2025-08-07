@@ -70,4 +70,3 @@ Supports Arabic language with RTL layout and includes:
 - Rate limiting applied to public complaint submission and login.
 
 - Admin routes protected by login sessions.
-s
