@@ -1,0 +1,27 @@
+body {
+    background-color: #f8f9fa;
+}
+
+.navbar {
+    background-color: #343a40 !important;
+}
+
+.navbar .btn {
+    font-size: 0.9rem;
+}
+
+.card {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.section-title {
+    font-weight: bold;
+    border-bottom: 2px solid #dee2e6;
+    padding-bottom: 5px;
+    margin-bottom: 20px;
+}
+
+table th,
+table td {
+    vertical-align: middle !important;
+}

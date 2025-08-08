@@ -1,17 +1,215 @@
 {% extends "base.html" %}
-{% block title %}تقديم شكوى{% endblock %}
+{% block title %}نظام الشكاوي الالكترونية{% endblock %}
+{% block head %}
+<link href="{{ url_for('static', filename='css/index.css') }}" rel="stylesheet">
+{% endblock %}
 {% block content %}
-<h2 class="mb-4">تقديم شكوى</h2>
-<form method="POST">
-  {{ form.hidden_tag() }}
-  <div class="mb-3">
-    {{ form.title.label(class="form-label") }}
-    {{ form.title(class="form-control") }}
+<!-- Hero Section -->
+<section class="hero py-5 mb-5">
+  <div class="container">
+    <div class="row align-items-center">
+
+      <!-- Hero Text -->
+      <div class="col-lg-6 order-2 order-lg-1 text-start mt-4">
+        <h1>مرحباً بكم في نظام الشكاوي الرقمي</h1>
+        <h3 class="mt-3">شكواك تبني لنا بيئة أفضل <span>لا تتردد...</span></h3>
+        <h4 class="mt-3">نستمع لك... نحمي خصوصيتك... ونعمل لأجلك</h4>
+        <a href="{{ url_for('public.index') }}#form" class="btn btn-primary mt-3">إذهب الى الاستمارة</a>
+      </div>
+
+      <!-- Hero Image with Floating Cards -->
+      <div class="col-lg-6 order-1 order-lg-2" data-aos="fade-left" data-aos-delay="300">
+        <div class="hero-visual">
+          <div class="hero-image-wrapper">
+            <img src="{{ url_for('static', filename='img/illustration-15.webp') }}" class="img-fluid hero-image"
+              alt="Hero Image">
+            <div class="floating-elements">
+              <div class="floating-card card-1">
+                <i class="bi bi-ear"></i>
+                <span>نستمع</span>
+              </div>
+              <div class="floating-card card-2">
+                <i class="bi bi-heart"></i>
+                <span>نهتم</span>
+              </div>
+              <div class="floating-card card-3">
+                <i class="bi bi-lightning-charge"></i>
+                <span>نتصرف</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
   </div>
-  <div class="mb-3">
-    {{ form.content.label(class="form-label") }}
-    {{ form.content(class="form-control", rows=5) }}
+</section>
+
+
+<!-- About Section -->
+<section id="about" class="mb-5">
+  <div class="container text-start" data-aos="fade-up" data-aos-delay="300">
+    <div class="row">
+      <!-- About text with title -->
+      <div class="col-lg-6 col-md-12">
+        <h2 class="mb-4">حول النظام</h2>
+        <p style="text-align: justify; line-height: 1.8;">
+          يُعد نظام الشكاوى الرقمي منصة حديثة تهدف إلى تعزيز قنوات التواصل بين الموظفين والمواطنين وإدارة
+          الجامعة،
+          من خلال توفير وسيلة سهلة وآمنة لتقديم الشكاوى والملاحظات. يتيح النظام للمستخدمين إرسال شكاواهم
+          المتعلقة
+          بمختلف جوانب البيئة الجامعية، سواء كانت إدارية، خدمية، أو تنظيمية، بما يساهم في تحسين جودة
+          الخدمات
+          وتطوير الأداء المؤسسي. وتتميز المنصة بمستوى عالٍ من الأمان والسرية، حيث لا يمكن تتبع هوية
+          المشتكي، مما
+          يضمن حرية التعبير عن المشكلات دون تردد، كما تتيح للمستخدم إمكانية تتبع حالة الشكوى خطوة بخطوة
+          حتى يتم
+          البت فيها من الجهات المعنية.
+        </p>
+      </div>
+
+      <!-- FAQ with title -->
+      <div id="faq" class="col-lg-6 col-md-12" dir="rtl">
+        <h2 class="mb-4">الأسئلة الشائعة</h2>
+        <div class="accordion" id="faqAccordion">
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="q1">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#a1"
+                aria-expanded="false" aria-controls="a1">
+                كيف يمكنني تقديم شكوى عبر النظام؟
+              </button>
+            </h2>
+            <div id="a1" class="accordion-collapse collapse" aria-labelledby="q1" data-bs-parent="#faqAccordion">
+              <div class="accordion-body text-start" style="line-height: 1.8;">
+                يمكنك تقديم شكوى عبر النظام من خلال الضغط على زر "تقديم شكوى"، وملء التفاصيل
+                المطلوبة مثل
+                الموضوع والتفاصيل، ثم إرسالها مباشرة إلى الإدارة لمراجعتها.
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="q2">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#a2"
+                aria-expanded="false" aria-controls="a2">
+                هل يمكنني متابعة حالة الشكوى التي قدمتها؟
+              </button>
+            </h2>
+            <div id="a2" class="accordion-collapse collapse" aria-labelledby="q2" data-bs-parent="#faqAccordion">
+              <div class="accordion-body text-start" style="line-height: 1.8;">
+                نعم، يمكنك متابعة حالة شكواك من خلال الرابط المباشر المخصص لكل شكوى، حيث يمكنك نسخه
+                والاحتفاظ
+                به. من خلال هذا الرابط ستتمكن من معرفة حالة الشكوى سواء كانت قيد الانتظار، قيد
+                المعالجة، أو تم
+                حلها، بالإضافة إلى الإطلاع على تفاصيلها في أي وقت.
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="q3">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#a3"
+                aria-expanded="false" aria-controls="a3">
+                من سيقوم بالرد على الشكوى؟
+              </button>
+            </h2>
+            <div id="a3" class="accordion-collapse collapse" aria-labelledby="q3" data-bs-parent="#faqAccordion">
+              <div class="accordion-body text-start" style="line-height: 1.8;">
+                يتم الرد على الشكاوي من قبل الإدارة أو من قبل المعنيين في القسم المسؤول.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-  <button type="submit" class="btn btn-primary">{{ form.submit.label.text or "إرسال" }}</button>
-</form>
+</section>
+
+
+<!-- Statistics -->
+<section class="text-center py-5 mb-5 bg-light">
+  <div class="container" data-aos="fade-up" data-aos-delay="300">
+    <h2 class="mb-4">الإحصائيات</h2>
+    <div class="row gy-4">
+
+      <!-- Counter Item -->
+      <div class="col-md-3" data-aos="fade-left" data-aos-delay="400">
+        <div class="counter-box shadow p-4 rounded bg-white">
+          <h3 class="counter text-primary" data-target="{{ total }}">0</h3>
+          <p class="mt-2">عدد الشكاوي الكلي</p>
+        </div>
+      </div>
+
+      <div class="col-md-3" data-aos="fade-left" data-aos-delay="500">
+        <div class="counter-box shadow p-4 rounded bg-white">
+          <h3 class="counter text-success" data-target="{{ complete }}">0</h3>
+          <p class="mt-2">عدد الشكاوي المنجزة</p>
+        </div>
+      </div>
+
+      <div class="col-md-3" data-aos="fade-left" data-aos-delay="600">
+        <div class="counter-box shadow p-4 rounded bg-white">
+          <h3 class="counter text-warning" data-target="{{ in_process }}">0</h3>
+          <p class="mt-2">عدد الشكاوي قيد الانجاز</p>
+        </div>
+      </div>
+
+      <div class="col-md-3" data-aos="fade-left" data-aos-delay="700">
+        <div class="counter-box shadow p-4 rounded bg-white">
+          <h3 class="counter text-secondary" data-target="{{ waiting }}">0</h3>
+          <p class="mt-2">عدد الشكاوي قيد الانتظار</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section id="form">
+  <div data-aos="fade-up" data-aos-delay="300">
+    <h2 class="mb-4">تقديم شكوى</h2>
+    <form method="POST">
+      {{ form.hidden_tag() }}
+      <div class="mb-3">
+        {{ form.title.label(class="form-label") }}
+        {{ form.title(class="form-control") }}
+      </div>
+      <div class="mb-3">
+        {{ form.content.label(class="form-label") }}
+        {{ form.content(class="form-control", rows=5) }}
+      </div>
+      <button type="submit" class="btn btn-primary">{{ form.submit.label.text or "إرسال" }}</button>
+    </form>
+  </div>
+</section>
+
+{% block scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const counters = document.querySelectorAll('.counter');
+    const duration = 1000; // animation duration in ms
+
+    counters.forEach(counter => {
+      const target = +counter.getAttribute('data-target');
+      let start = null;
+
+      function step(timestamp) {
+        if (!start) start = timestamp;
+        const progress = timestamp - start;
+        const progressRatio = Math.min(progress / duration, 1);
+        const currentCount = Math.floor(progressRatio * target);
+        counter.innerText = currentCount;
+
+        if (progress < duration) {
+          window.requestAnimationFrame(step);
+        } else {
+          counter.innerText = target;
+        }
+      }
+
+      window.requestAnimationFrame(step);
+    });
+  });
+</script>
+{% endblock %}
 {% endblock %}

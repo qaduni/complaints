@@ -1,19 +1,56 @@
 {% extends "base.html" %}
-{% block title %}تتبع الشكوى{% endblock %}
+{% block title %}نظام الشكاوي - تتبع الشكوى{% endblock %}
 {% block content %}
-<h2 class="mb-4">تفاصيل الشكوى</h2>
-<p><strong>عنوان الشكوى:</strong> {{ complaint.title }}</p>
-<p><strong>محتوى الشكوى:</strong> {{ complaint.content }}</p>
-<p><strong>الحالة:</strong>
-  {% if complaint.status == "waiting" %}
-    <span class="badge bg-warning text-dark">قيد الانتظار</span>
-  {% elif complaint.status == "in process" %}
-    <span class="badge bg-info text-dark">قيد المعالجة</span>
-  {% elif complaint.status == "complete" %}
-    <span class="badge bg-success">مكتملة</span>
-  {% else %}
-    <span class="badge bg-secondary">غير معروف</span>
-  {% endif %}
-</p>
-<p><strong>تاريخ الإرسال:</strong> {{ complaint.created_at.strftime("%Y-%m-%d %H:%M") }}</p>
+<div class="text-center mb-4" data-aos="fade-down">
+  <p class="lead">يرجى الاحتفاظ برابط هذه الصفحة لكي تتمكن من تتبع حالة الشكوى.</p>
+  <button id="copyLinkBtn" class="btn btn-primary">
+    📋 نسخ رابط الصفحة
+  </button>
+  <small id="copyMsg" class="text-success ms-2" style="display:none;">✔ تم النسخ</small>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+{% for category, message in messages %}
+<div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+  {{ message }}
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="إغلاق"></button>
+</div>
+{% endfor %}
+{% endif %}
+{% endwith %}
+
+<div class="card shadow-sm" data-aos="fade-up">
+  <div class="card-body">
+    <h2 class="card-title mb-3">تفاصيل الشكوى</h2>
+
+    <p><strong>عنوان الشكوى:</strong> {{ complaint.title }}</p>
+    <p><strong>محتوى الشكوى:</strong> {{ complaint.content }}</p>
+    <p><strong>الحالة:</strong>
+      {% if complaint.status == "waiting" %}
+      <span class="badge bg-warning text-dark">قيد الانتظار</span>
+      {% elif complaint.status == "in process" %}
+      <span class="badge bg-info text-dark">قيد المعالجة</span>
+      {% elif complaint.status == "complete" %}
+      <span class="badge bg-success">مكتملة</span>
+      {% else %}
+      <span class="badge bg-secondary">غير معروف</span>
+      {% endif %}
+    </p>
+    <p><strong>تاريخ الإرسال:</strong> {{ complaint.created_at.strftime("%Y-%m-%d %H:%M") }}</p>
+  </div>
+</div>
+
+<script>
+  document.getElementById("copyLinkBtn").addEventListener("click", function () {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url).then(function () {
+      const msg = document.getElementById("copyMsg");
+      msg.style.display = "inline";
+      setTimeout(() => { msg.style.display = "none"; }, 2000);
+    }).catch(function (err) {
+      alert("حدث خطأ أثناء نسخ الرابط: " + err);
+    });
+  });
+</script>
 {% endblock %}

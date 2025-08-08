@@ -4,6 +4,7 @@ from werkzeug.security import generate_password_hash
 from app.forms import LoginForm, AddUserForm
 from app.models import AdminUser, Complaint
 from app import db, bcrypt, login_manager, limiter
+from sqlalchemy import func
 from openpyxl import Workbook
 from io import BytesIO
 
@@ -49,10 +50,14 @@ def dashboard():
         return redirect(url_for('admin.dashboard'))
 
     # Complaint statistics
-    total = Complaint.query.count()
-    waiting = Complaint.query.filter_by(status="waiting").count()
-    in_process = Complaint.query.filter_by(status="in process").count()
-    complete = Complaint.query.filter_by(status="complete").count()
+    counts = dict(db.session.query(Complaint.status, func.count(Complaint.id))
+              .group_by(Complaint.status)
+              .all())
+
+    total = sum(counts.values())
+    waiting = counts.get("waiting", 0)
+    in_process = counts.get("in process", 0)
+    complete = counts.get("complete", 0)
 
     # Complaint filtering & pagination
     page = request.args.get("page", 1, type=int)
