@@ -1,82 +1,90 @@
 # Complaints Management Web Application
 
-A simple Flask-based web application to submit and manage complaints.  
-Supports Arabic language with RTL layout and includes:
+A Flask-based web application for submitting and managing complaints.  
+Designed for Arabic-speaking users with RTL layout support.  
 
-- Public complaint submission without requiring email or phone.
-- Complaint status tracking via unique token.
-- Admin dashboard for managing complaints and admin users.
-- Complaint status updates and filtering.
-- User management for admin users.
-- Export complaints to Excel.
-- Secure login with session management and CSRF protection.
-- Rate limiting to prevent abuse.
+This application is intended for universities and organizations to allow people to submit complaints anonymously, track their status, and for admins to manage them securely.
 
 ---
 
-## Features
+## ✨ Features
 
-- Submit complaints anonymously.
-- Track complaint status with a unique token link.
-- Admin login with user management (add/delete admins).
-- View, filter, and update complaint statuses.
-- Export complaint data as an Excel file.
-- Arabic interface with right-to-left support.
-- CSRF protection and rate limiting on forms.
+- **Anonymous complaint submission** — No email or phone required.
+- **Complaint tracking** — Each submission gets a unique tracking token.
+- **Admin dashboard** — Manage complaints and admin accounts.
+- **Status management** — Update and filter complaint statuses.
+- **Data export** — Export complaints as `.xlsx` Excel files.
+- **Arabic interface** — Full right-to-left layout support.
+- **Security**:
+  - CSRF protection on all forms.
+  - Rate limiting on public submissions and login.
+  - Secure session management for admin routes.
 
 ---
 
-## Requirements
+## 📋 Requirements
 
-- Python 3.11+
+- Python **3.11+**
 - [`uv` Package Manager](https://docs.astral.sh/uv/getting-started/installation/)
 
 ---
 
-## Installation
+## 🚀 Installation
 
-    Use the complaints-manager to install the website and configuration.
+Run the following command to install the website and configure it automatically:
 
-    ```bash
-    curl -sSL https://raw.githubusercontent.com/qaduni/complaints/master/complaints-manager.sh | sudo bash -s -- install
-    ```
+```bash
+curl -sSL https://raw.githubusercontent.com/qaduni/complaints/master/complaints-manager.sh | sudo bash -s -- install
+```
 
-## Running & Stopping The Website
+## ▶️ Running the Website
 
-    Also use the complaints-manager to run:
+Start the website with:
 
-    ```bash
-    sudo bash complaints-manager.sh run
-    ```
+```bash
+sudo bash complaints-manager.sh run
+```
 
-    Or to stop the website:
+## ⏹ Stopping the Website
 
-    ```bash
+Stop the running instance with:
+
+```bash
     sudo bash complaints-manager.sh stop
-    ```
+```
 
-## Uninstall
+## 🗑 Uninstallation
 
-    To uninstall the website and all the configuration run this command:
-    
-    ```bash
-    sudo bash complaints-manager.sh uninstall
-    ```
+Remove the website and all configurations:
 
-## Usage
+```bash
+sudo bash complaints-manager.sh uninstall
+```
 
-- Open the landing page to submit complaints.
+## 📖 Usage
 
-- Use the link shown after submission to track complaint status.
+1. Public Access
 
-- Access /admin/login to sign in to the admin dashboard.
+    - Open the landing page to submit a complaint.
 
-- Manage complaints and admin users from the dashboard.
+    - After submission, save the tracking link to monitor complaint status.
 
-## Security Notes
+2. Admin Access
 
-- CSRF protection enabled on all forms.
+    - Visit /admin/login to sign in.
 
-- Rate limiting applied to public complaint submission and login.
+    - Manage complaints and admin accounts from the dashboard.
 
-- Admin routes protected by login sessions.
+    - Export complaints to Excel when needed.
+
+## 🔒 Security Notes
+
+- All forms are protected against CSRF attacks.
+
+- Public submissions and logins are rate-limited to prevent abuse.
+
+- Admin sessions are secured with HttpOnly cookies.
+
+- Passwords are hashed with bcrypt before storage.
+
+- Unique tracking tokens are generated securely.
