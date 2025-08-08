@@ -34,7 +34,7 @@ This application is intended for universities and organizations to allow people 
 Run the following command to install the website and configure it automatically:
 
 ```bash
-curl -sSL https://github.com/qaduni/complaints/blob/master/complaints-manager.sh | sudo bash -s -- install
+curl -sSL https://raw.githubusercontent.com/qaduni/complaints/master/complaints-manager.sh | sudo bash -s -- install
 ```
 
 ## ▶️ Running the Website
