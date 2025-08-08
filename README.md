@@ -36,6 +36,7 @@ Supports Arabic language with RTL layout and includes:
 ## Installation
 
     Use the complaints-manager to install the website and configuration.
+
     ```bash
     curl -sSL https://raw.githubusercontent.com/qaduni/complaints/master/complaints-manager.sh | sudo bash -s -- install
     ```
@@ -43,10 +44,13 @@ Supports Arabic language with RTL layout and includes:
 ## Running & Stopping The Website
 
     Also use the complaints-manager to run:
+
     ```bash
     sudo bash complaints-manager.sh run
     ```
+
     Or to stop the website:
+
     ```bash
     sudo bash complaints-manager.sh stop
     ```
@@ -54,6 +58,7 @@ Supports Arabic language with RTL layout and includes:
 ## Uninstall
 
     To uninstall the website and all the configuration run this command:
+    
     ```bash
     sudo bash complaints-manager.sh uninstall
     ```
