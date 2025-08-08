@@ -29,29 +29,34 @@ Supports Arabic language with RTL layout and includes:
 ## Requirements
 
 - Python 3.11+
-- `uv` package manager
-- SQLite (default database)
+- [`uv` Package Manager](https://docs.astral.sh/uv/getting-started/installation/)
 
 ---
 
 ## Installation
 
-1. Clone the repository:
-
-   ```bash
-   git clone https://github.com/qaduni/complaints.git
-   cd complaints
-
-2. Install dependencies (using uv):
-
+    Use the complaints-manager to install the website and configuration.
     ```bash
-    uv install -r requirements.txt
+    curl -sSL https://raw.githubusercontent.com/qaduni/complaints/master/complaints-manager.sh | sudo bash -s -- install
+    ```
 
-3. Run the application:
+## Running & Stopping The Website
 
+    Also use the complaints-manager to run:
     ```bash
-    uv run run.py
+    sudo bash complaints-manager.sh run
+    ```
+    Or to stop the website:
+    ```bash
+    sudo bash complaints-manager.sh stop
+    ```
 
+## Uninstall
+
+    To uninstall the website and all the configuration run this command:
+    ```bash
+    sudo bash complaints-manager.sh uninstall
+    ```
 
 ## Usage
 

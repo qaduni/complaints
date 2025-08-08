@@ -1,7 +1,7 @@
 [project]
 name = "complaints-qu-edu-iq"
 version = "0.1.0"
-description = "Add your description here"
+description = "A complaints website that don't track people."
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
@@ -11,5 +11,6 @@ dependencies = [
     "flask-login>=0.6.3",
     "flask-sqlalchemy>=3.1.1",
     "flask-wtf>=1.2.2",
+    "gunicorn>=23.0.0",
     "openpyxl>=3.1.5",
 ]
