@@ -27,7 +27,7 @@ You can run these commands directly on your server terminal to install, update, 
 
 ## 🚀 Installation
 
-**Prerequisites:** Make sure Python 3.10 is installed on your server.
+**Prerequisites:** Make sure Python 3.13 is installed on your server.
 
 Run the following command to install the website and configure it automatically:
 
