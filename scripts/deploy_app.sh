@@ -5,7 +5,7 @@ set -euo pipefail
 APP_NAME="complaints_app"
 APP_USER="complaints_user"
 APP_DIR="/opt/$APP_NAME"
-PYTHON_VERSION="3.10"
+PYTHON_VERSION="3.13"
 REPO_URL="https://github.com/username/your-flask-repo.git"  # <-- change this
 DOMAIN_NAME="${1:-}"  # passed as first argument
 
