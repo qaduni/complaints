@@ -22,6 +22,10 @@ if ! id "$APP_USER" >/dev/null 2>&1; then
 fi
 
 # ======== INSTALL SYSTEM REQUIREMENTS ========
+apt-get update
+apt-get install -y software-properties-common
+add-apt-repository -y ppa:deadsnakes/ppa
+apt-get update
 echo "[+] Installing Python $PYTHON_VERSION, venv, pip, git, and Nginx"
 sudo apt update
 sudo apt install -y python${PYTHON_VERSION} python${PYTHON_VERSION}-venv python3-pip git nginx
