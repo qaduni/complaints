@@ -1,10 +1,39 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, PasswordField, SubmitField
-from wtforms.validators import DataRequired, Length
+from wtforms import StringField, TextAreaField, PasswordField, EmailField, SubmitField
+from wtforms.validators import DataRequired, Length, Regexp, Email, ValidationError
+
+def validate_phone_length(form, field):
+    phone = field.data.strip()
+    if phone.startswith("+"):
+        if not (phone.startswith("+964") and len(phone) == 13):
+            raise ValidationError("رقم الهاتف مع مفتاح الدولة يجب أن يكون 13 رقمًا ويبدأ بـ +964")
+    else:
+        if len(phone) != 11:
+            raise ValidationError("رقم الهاتف يجب أن يكون 11 رقمًا بدون مفتاح الدولة")
 
 class ComplaintForm(FlaskForm):
-    title = StringField("العنوان", validators=[DataRequired(), Length(max=255)])
-    content = TextAreaField("المحتوى", validators=[DataRequired()])
+    name = StringField(
+        "الاسم الكامل",
+        validators=[DataRequired(message="الاسم الكامل مطلوب."),
+                    Length(max=100, message="الاسم يجب ألا يتجاوز 100 حرف.")]
+    )
+    phone = StringField(
+        "رقم الموبايل",
+        validators=[
+            DataRequired(message="رقم الموبايل مطلوب."),
+            Regexp(r'^\+?\d+$', message="يجب أن يحتوي رقم الهاتف على أرقام فقط"),
+            validate_phone_length
+        ]
+    )
+    email = EmailField("الايميل (اختياري)",validators=[])
+    title = StringField(
+        "العنوان",
+        validators=[DataRequired(message="العنوان مطلوب."), Length(max=255)]
+    )
+    content = TextAreaField(
+        "المحتوى",
+        validators=[DataRequired(message="المحتوى مطلوب.")]
+    )
     submit = SubmitField("إرسال")
 
 class LoginForm(FlaskForm):

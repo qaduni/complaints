@@ -14,8 +14,11 @@ def index():
     if form.validate_on_submit():
         token = str(uuid.uuid4().hex[:12])
         complaint = Complaint(
-            title=form.title.data,
-            content=form.content.data,
+            name=form.name.data.strip(),
+            phone=form.phone.data.strip(),
+            email=form.email.data.strip() if form.email.data else None,
+            title=form.title.data.strip(),
+            content=form.content.data.strip(),
             token=token
         )
         db.session.add(complaint)

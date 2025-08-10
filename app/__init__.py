@@ -12,7 +12,10 @@ db = SQLAlchemy()
 csrf = CSRFProtect()
 bcrypt = Bcrypt()
 login_manager = LoginManager()
-limiter = Limiter(key_func=get_remote_address)
+limiter = Limiter(
+    key_func=get_remote_address,
+    storage_uri="redis://localhost:6379"
+)
 
 def create_app():
     app = Flask(__name__)

@@ -72,6 +72,9 @@
       <table class="table table-bordered table-striped align-middle">
         <thead class="table-dark">
           <tr>
+            <th>اسم المشتكي</th>
+            <th>رقم الهاتف</th>
+            <th>الايميل</th>
             <th>العنوان</th>
             <th>الحالة</th>
             <th>تاريخ الإرسال</th>
@@ -81,6 +84,9 @@
         <tbody>
           {% for c in complaints.items %}
           <tr>
+            <td>{{ c.name }}</td>
+            <td>{{ c.phone }}</td>
+            <td>{{ c.email }}</td>
             <td>{{ c.title }}</td>
             <td>
               <form method="POST" action="{{ url_for('admin.update_complaint', id=c.id) }}?page={{ complaints.page }}">

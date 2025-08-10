@@ -1,7 +1,7 @@
 [project]
 name = "complaints-qu-edu-iq"
 version = "0.1.0"
-description = "A complaints website that don't track people."
+description = "A complaints website."
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [

@@ -171,6 +171,18 @@
     <form method="POST">
       {{ form.hidden_tag() }}
       <div class="mb-3">
+        {{ form.name.label(class="form-label") }}
+        {{ form.name(class="form-control") }}
+      </div>
+      <div class="mb-3">
+        {{ form.phone.label(class="form-label") }}
+        {{ form.phone(class="form-control", pattern="\+?\d{11,13}", maxlength="13", oninput="this.value=this.value.replace(/[^0-9+]/g,'')") }}
+      </div>
+      <div class="mb-3">
+        {{ form.email.label(class="form-label") }}
+        {{ form.email(class="form-control") }}
+      </div>
+      <div class="mb-3">
         {{ form.title.label(class="form-label") }}
         {{ form.title(class="form-control") }}
       </div>

@@ -9,7 +9,6 @@ This application is intended for universities and organizations to allow people 
 
 ## ✨ Features
 
-- **Anonymous complaint submission** — No email or phone required.
 - **Complaint tracking** — Each submission gets a unique tracking token.
 - **Admin dashboard** — Manage complaints and admin accounts.
 - **Status management** — Update and filter complaint statuses.
@@ -22,43 +21,34 @@ This application is intended for universities and organizations to allow people 
 
 ---
 
-## 📋 Requirements
+## Note
 
-- Python **3.11+**
-- [`uv` Package Manager](https://docs.astral.sh/uv/getting-started/installation/)
-
----
+You can run these commands directly on your server terminal to install, update, or uninstall the app.
 
 ## 🚀 Installation
+
+**Prerequisites:** Make sure Python 3.11+ is installed on your server.
 
 Run the following command to install the website and configure it automatically:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/qaduni/complaints/master/complaints-manager.sh | sudo bash -s -- install
+curl -sSL https://raw.githubusercontent.com/qaduni/complaints/master/scripts/deploy_app.sh | sudo bash
 ```
 
-## ▶️ Running the Website
+### ⬆️ Updating the Website
 
-Start the website with:
+Update the website without affecting existing data or configuration.
 
 ```bash
-sudo bash complaints-manager.sh run
+curl -sSL https://raw.githubusercontent.com/qaduni/complaints/master/scripts/update_app.sh | sudo bash
 ```
 
-## ⏹ Stopping the Website
-
-Stop the running instance with:
-
-```bash
-    sudo bash complaints-manager.sh stop
-```
-
-## 🗑 Uninstallation
+### 🗑 Uninstallation
 
 Remove the website and all configurations:
 
 ```bash
-sudo bash complaints-manager.sh uninstall
+curl -sSL https://raw.githubusercontent.com/qaduni/complaints/master/scripts/uninstall_app.sh | sudo bash
 ```
 
 ## 📖 Usage

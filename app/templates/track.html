@@ -24,6 +24,9 @@
   <div class="card-body">
     <h2 class="card-title mb-3">تفاصيل الشكوى</h2>
 
+    <p><strong>اسم المشتكي:</strong> {{ complaint.name }}</p>
+    <p><strong>رقم الهاتف:</strong> {{ complaint.phone }}</p>
+    <p><strong>الايميل:</strong> {{ complaint.email }}</p>
     <p><strong>عنوان الشكوى:</strong> {{ complaint.title }}</p>
     <p><strong>محتوى الشكوى:</strong> {{ complaint.content }}</p>
     <p><strong>الحالة:</strong>
@@ -41,6 +44,7 @@
   </div>
 </div>
 
+{% block scripts %}
 <script>
   document.getElementById("copyLinkBtn").addEventListener("click", function () {
     const url = window.location.href;
@@ -53,4 +57,5 @@
     });
   });
 </script>
+{% endblock %}
 {% endblock %}
