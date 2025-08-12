@@ -26,34 +26,33 @@ apt-get update
 apt-get install -y software-properties-common
 add-apt-repository -y ppa:deadsnakes/ppa
 apt-get update
-echo "[+] Installing Python $PYTHON_VERSION, venv, pip, git, and Nginx"
-sudo apt update
-sudo apt install -y python${PYTHON_VERSION} python${PYTHON_VERSION}-venv python3-pip git nginx redis-server
+echo "[+] Installing Python $PYTHON_VERSION, venv, pip, git, Nginx, and Redis"
+apt-get install -y python${PYTHON_VERSION} python${PYTHON_VERSION}-venv python3-pip git nginx redis-server
 
 # ======== CLONE OR UPDATE REPO ========
 if [[ -d "$APP_DIR/.git" ]]; then
     echo "[+] Repo exists, pulling latest changes"
-    sudo -u "$USER" git -C "$APP_DIR" pull
+    sudo -u "$APP_USER" git -C "$APP_DIR" pull
 else
     echo "[+] Cloning repository into $APP_DIR"
     sudo mkdir -p "$APP_DIR"
-    sudo chown "$USER":"$USER" "$APP_DIR"
-    git clone "$REPO_URL" "$APP_DIR"
+    sudo chown "$APP_USER":"$APP_USER" "$APP_DIR"
+    sudo -u "$APP_USER" git clone "$REPO_URL" "$APP_DIR"
 fi
 
 # ======== SETUP PYTHON VENV ========
 if [[ ! -d "$APP_DIR/venv" ]]; then
     echo "[+] Creating Python virtual environment"
-    python${PYTHON_VERSION} -m venv "$APP_DIR/venv"
+    sudo -u "$APP_USER" python${PYTHON_VERSION} -m venv "$APP_DIR/venv"
 fi
 
 # ======== INSTALL APP REQUIREMENTS ========
 echo "[+] Installing application requirements"
-"$APP_DIR/venv/bin/pip" install --upgrade pip wheel
+sudo -u "$APP_USER" "$APP_DIR/venv/bin/pip" install --upgrade pip wheel
 if [[ -f "$APP_DIR/requirements.txt" ]]; then
-    "$APP_DIR/venv/bin/pip" install -r "$APP_DIR/requirements.txt"
+    sudo -u "$APP_USER" "$APP_DIR/venv/bin/pip" install -r "$APP_DIR/requirements.txt"
 else
-    "$APP_DIR/venv/bin/pip" install flask gunicorn
+    sudo -u "$APP_USER" "$APP_DIR/venv/bin/pip" install flask gunicorn
 fi
 
 # ======== CREATE SYSTEMD SERVICE ========
@@ -96,22 +95,23 @@ sudo ln -sf /etc/nginx/sites-available/$APP_NAME /etc/nginx/sites-enabled/
 
 # ======== PERMISSIONS ========
 echo "[+] Adjusting permissions"
-sudo chmod 775 "$APP_DIR"
 sudo chown -R $APP_USER:www-data "$APP_DIR"
+sudo chmod -R 775 "$APP_DIR"
 
 # Optionally configure firewall (UFW example)
 if command -v ufw &> /dev/null; then
     ufw allow 6379/tcp
+    ufw allow 'Nginx Full'
 fi
 
 # ======== START SERVICES ========
-echo "[+] Starting Redis, Gunicorn and Nginx"
+echo "[+] Starting Redis, Gunicorn, and Nginx"
 sudo systemctl daemon-reload
-systemctl enable redis-server
+sudo systemctl enable redis-server
 sudo systemctl enable $APP_NAME
+sudo systemctl restart redis-server
 sudo systemctl restart $APP_NAME
 sudo systemctl restart nginx
-systemctl start redis-server
 
 echo "[✓] Deployment complete!"
 echo "Visit: http://$DOMAIN_NAME"
