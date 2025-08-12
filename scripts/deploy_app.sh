@@ -28,7 +28,7 @@ add-apt-repository -y ppa:deadsnakes/ppa
 apt-get update
 echo "[+] Installing Python $PYTHON_VERSION, venv, pip, git, and Nginx"
 sudo apt update
-sudo apt install -y python${PYTHON_VERSION} python${PYTHON_VERSION}-venv python3-pip git nginx
+sudo apt install -y python${PYTHON_VERSION} python${PYTHON_VERSION}-venv python3-pip git nginx redis-server
 
 # ======== CLONE OR UPDATE REPO ========
 if [[ -d "$APP_DIR/.git" ]]; then
@@ -54,13 +54,6 @@ if [[ -f "$APP_DIR/requirements.txt" ]]; then
     "$APP_DIR/venv/bin/pip" install -r "$APP_DIR/requirements.txt"
 else
     "$APP_DIR/venv/bin/pip" install flask gunicorn
-fi
-
-# Install Redis server if missing
-if ! command -v redis-server &> /dev/null; then
-    echo "Installing Redis server..."
-    apt-get update
-    apt-get install -y redis-server
 fi
 
 # ======== CREATE SYSTEMD SERVICE ========
