@@ -8,9 +8,11 @@ APP_DIR="/opt/$APP_NAME"
 PYTHON_VERSION="3.13"
 REPO_URL="https://github.com/qaduni/complaints.git"
 DOMAIN_NAME="${1:-}"
+SSL_CERT_PATH="${2:-}"
+SSL_CERT_KEY_PATH="${3:-}"
 
 if [[ -z "$DOMAIN_NAME" ]]; then
-    echo "Usage: $0 <domain_or_subdomain>"
+    echo "Usage: $0 <domain_or_subdomain> [ssl_cert_path ssl_cert_key_path]"
     exit 1
 fi
 
@@ -108,8 +110,51 @@ if [[ -f "$NGINX_CONF" ]]; then
     cp "$NGINX_CONF" "$NGINX_CONF.bak_$(date +%F_%T)"
 fi
 
-log "Creating Nginx config"
-cat > "$NGINX_CONF" <<EOF
+# 8a. Check if SSL cert/key files are provided and exist
+if [[ -n "$SSL_CERT_PATH" && -n "$SSL_CERT_KEY_PATH" ]]; then
+    if [[ ! -f "$SSL_CERT_PATH" ]]; then
+        echo "Error: SSL certificate file '$SSL_CERT_PATH' not found."
+        exit 1
+    fi
+    if [[ ! -f "$SSL_CERT_KEY_PATH" ]]; then
+        echo "Error: SSL certificate key file '$SSL_CERT_KEY_PATH' not found."
+        exit 1
+    fi
+
+    log "Creating Nginx config with HTTPS support"
+    cat > "$NGINX_CONF" <<EOF
+server {
+    listen 80;
+    server_name $DOMAIN_NAME;
+
+    # Redirect all HTTP to HTTPS
+    return 301 https://\$host\$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name $DOMAIN_NAME;
+
+    ssl_certificate $SSL_CERT_PATH;
+    ssl_certificate_key $SSL_CERT_KEY_PATH;
+
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers on;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+
+    location / {
+        include proxy_params;
+        proxy_pass http://unix:$APP_DIR/$APP_NAME.sock;
+    }
+
+    location /static {
+        alias $APP_DIR/app/static;
+    }
+}
+EOF
+else
+    log "Creating Nginx config without HTTPS"
+    cat > "$NGINX_CONF" <<EOF
 server {
     listen 80;
     server_name $DOMAIN_NAME;
@@ -124,6 +169,7 @@ server {
     }
 }
 EOF
+fi
 
 ln -sf "$NGINX_CONF" /etc/nginx/sites-enabled/
 
@@ -142,9 +188,12 @@ systemctl enable "$APP_NAME"
 systemctl restart "$APP_NAME"
 
 log "Testing Nginx configuration"
-nginx -t
+if ! nginx -t; then
+    echo "Error: Nginx configuration test failed. Aborting."
+    exit 1
+fi
 
-log "Restarting Nginx"
+log "Reloading Nginx"
 systemctl reload nginx
 
 log "[✓] Deployment completed. Visit: http://$DOMAIN_NAME"
