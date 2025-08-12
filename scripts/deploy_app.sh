@@ -87,7 +87,7 @@ server {
     }
 
     location /static {
-        alias $APP_DIR/static;
+        alias $APP_DIR/app/static;
     }
 }
 EOF
@@ -96,6 +96,7 @@ sudo ln -sf /etc/nginx/sites-available/$APP_NAME /etc/nginx/sites-enabled/
 
 # ======== PERMISSIONS ========
 echo "[+] Adjusting permissions"
+sudo chmod 775 "$APP_DIR"
 sudo chown -R $APP_USER:www-data "$APP_DIR"
 
 # Optionally configure firewall (UFW example)
