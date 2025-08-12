@@ -2,30 +2,20 @@
 set -euo pipefail
 
 APP_NAME="complaints_app"
-APP_DIR="/opt/$APP_NAME"
 APP_USER="complaints_user"
+APP_DIR="/opt/$APP_NAME"
 
-echo "[*] Updating app in $APP_DIR"
+echo "[+] Updating git repo"
+git -C "$APP_DIR" pull
 
-if [[ ! -d "$APP_DIR/.git" ]]; then
-  echo "Error: Git repo not found in $APP_DIR"
-  exit 1
-fi
+echo "[+] Upgrading pip packages"
+sudo -u "$APP_USER" "$APP_DIR/venv/bin/pip" install --upgrade -r "$APP_DIR/requirements.txt"
 
-# Pull latest changes
-sudo -u "$USER" git -C "$APP_DIR" pull
+echo "[+] Restarting Gunicorn service"
+systemctl restart "$APP_NAME"
 
-# Activate venv and install any new requirements
-if [[ -f "$APP_DIR/requirements.txt" ]]; then
-  echo "[*] Installing/updating Python dependencies"
-  "$APP_DIR/venv/bin/pip" install -r "$APP_DIR/requirements.txt"
-fi
+echo "[+] Reloading Nginx"
+nginx -t
+systemctl reload nginx
 
-# Adjust ownership if needed
-sudo chown -R $APP_USER:www-data "$APP_DIR"
-
-# Restart Gunicorn service
-echo "[*] Restarting $APP_NAME service"
-sudo systemctl restart $APP_NAME
-
-echo "[✓] Update completed."
+echo "[✓] Update complete."
