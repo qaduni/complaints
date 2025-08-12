@@ -32,7 +32,7 @@ You can run these commands directly on your server terminal to install, update, 
 Run the following command to install the website and configure it automatically:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/qaduni/complaints/master/scripts/deploy_app.sh | sudo bash <domain or subdomain>
+curl -sSL https://raw.githubusercontent.com/qaduni/complaints/master/scripts/deploy_app.sh | sudo bash -s -- <domain or subdomain>
 ```
 
 ### ⬆️ Updating the Website
