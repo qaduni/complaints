@@ -63,6 +63,8 @@ curl -sSL https://raw.githubusercontent.com/qaduni/complaints/master/scripts/uni
 
     - Visit /admin/login to sign in.
 
+    - Default Username `admin` and Password is `admin123`.
+
     - Manage complaints and admin accounts from the dashboard.
 
     - Export complaints to Excel when needed.
