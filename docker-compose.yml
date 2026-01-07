@@ -1,0 +1,29 @@
+services:
+  app:
+    build: .
+    container_name: complaints-app
+    ports:
+      - "8000:8000"
+    environment:
+      - SECRET_KEY=change-this-to-a-secure-random-key
+      - DATABASE_URL=sqlite:////app/instance/db.sqlite3
+      - DASHBOARD_USERNAME=admin
+      - DASHBOARD_PASSWORD=change-me-now
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      - ./instance:/app/instance
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: complaints-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+volumes:
+  redis_data:

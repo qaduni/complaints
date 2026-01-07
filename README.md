@@ -21,223 +21,285 @@ This application is intended for universities and organizations to allow people 
 
 ---
 
-## Note
+## 📋 Prerequisites
 
-You can run these commands directly on your server terminal to install, update, or uninstall the app.
+- [Docker](https://docs.docker.com/get-docker/) installed on your system
+- [Docker Compose](https://docs.docker.com/compose/install/) (included with Docker Desktop)
 
-## 🚀 Installation
+---
 
-### Auto Install
+## 🚀 Quick Start with Docker
 
-Run the following command to install the website and configure it automatically:
-
-For HTTPS:
-
-```bash
-curl -sSL https://raw.githubusercontent.com/qaduni/complaints/master/scripts/deploy_app.sh | \
-sudo bash -s -- <domain_or_subdomain> <ssl_cert_path> <ssl_cert_key_path>
-```
-
-For HTTP:
+### 1. Clone the Repository
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/qaduni/complaints/master/scripts/deploy_app.sh | \
-sudo bash -s -- <domain_or_subdomain>
+git clone https://github.com/qaduni/complaints.git
+cd complaints
 ```
 
-### Manual Install
+### 2. Configure Environment Variables
 
-For those how want to do things by hand.
+Edit the `docker-compose.yml` file to set your environment variables:
 
-1. Create app user.
+```yaml
+environment:
+  - SECRET_KEY=your-secure-random-key-here
+  - DATABASE_URL=sqlite:////app/instance/db.sqlite3
+  - DASHBOARD_USERNAME=admin
+  - DASHBOARD_PASSWORD=your-secure-password
+  - REDIS_URL=redis://redis:6379
+```
 
-    ```bash
-    sudo useradd --create-home --shell /bin/bash complaints_user
-    ```
+> ⚠️ **Important**: Change `SECRET_KEY` and `DASHBOARD_PASSWORD` to secure values before deploying to production!
 
-2. Install dependencies.
+### 3. Build and Start the Application
 
-    ```bash
-    sudo apt-get update
-    sudo apt-get install -y software-properties-common git nginx redis-server
-    sudo add-apt-repository -y ppa:deadsnakes/ppa
-    sudo apt-get update
-    sudo apt-get install -y python3.13 python3.13-venv
-    ```
+```bash
+docker compose up -d --build
+```
 
-3. Clone the project repository.
+This command will:
+- Build the application image
+- Start the Flask app container on port 8000
+- Start the Redis container for rate limiting
 
-    ```bash
-    sudo git clone https://github.com/qaduni/complaints.git /opt/complaints_app
-    sudo chown -R complaints_user:complaints_user /opt/complaints_app
-    ```
+### 4. Verify the Application is Running
 
-4. Create and activate Python virtual environment.
+```bash
+docker compose ps
+```
 
-    ```bash
-    sudo -u complaints_user python3.13 -m venv /opt/complaints_app/venv
-    ```
+You should see both containers running:
+```
+NAME               STATUS
+complaints-app     Up
+complaints-redis   Up
+```
 
-5. Install Python dependencies.
+### 5. Access the Application
 
-    ```bash
-    sudo -u complaints_user /opt/complaints_app/venv/bin/pip install --upgrade pip wheel setuptools
+- **Public Page**: http://localhost:8000
+- **Admin Login**: http://localhost:8000/admin/login
 
-    sudo -u complaints_user /opt/complaints_app/venv/bin/pip install -r /opt/complaints_app/requirements.txt
-    ```
+---
 
-6. Create systemd service file for Gunicorn.
+## 🔧 Docker Commands Reference
 
-    Create `/etc/systemd/system/complaints_app.service` using vim or nano and put this text:
+### Start the Application
 
-    ```bash
-    [Unit]
-    Description=Gunicorn instance to serve complaints_app
-    After=network.target
+```bash
+docker compose up -d
+```
 
-    [Service]
-    User=complaints_user
-    Group=www-data
-    WorkingDirectory=/opt/complaints_app
-    Environment="PATH=/opt/complaints_app/venv/bin"
-    ExecStart=/opt/complaints_app/venv/bin/gunicorn --workers 3 --bind unix:/opt/complaints_app/complaints_app.sock -m 007 wsgi:app
-    Restart=always
-    RestartSec=5
+### Stop the Application
 
-    [Install]
-    WantedBy=multi-user.target
-    ```
+```bash
+docker compose down
+```
 
-    Then reload systemd and start the service:
+### View Logs
 
-    ```bash
-    sudo systemctl daemon-reload
-    sudo systemctl enable complaints_app
-    sudo systemctl start complaints_app
-    ```
+```bash
+# View all logs
+docker compose logs
 
-7. Configure Nginx.
+# View app logs only
+docker compose logs app
 
-    Create `/etc/nginx/sites-available/complaints_app` using vim or nano and put this text:
+# Follow logs in real-time
+docker compose logs -f app
+```
 
-    For HTTP:
+### Rebuild After Code Changes
 
-    ```bash
-    server {
-        listen 80;
-        server_name your.subdomain.com;
+```bash
+docker compose up -d --build
+```
 
-        location / {
-            include proxy_params;
-            proxy_pass http://unix:/opt/complaints_app/complaints_app.sock;
-        }
+### Full Rebuild (No Cache)
 
-        location /static {
-            alias /opt/complaints_app/app/static;
-        }
+```bash
+docker compose build --no-cache
+docker compose up -d
+```
+
+### Restart the Application
+
+```bash
+docker compose restart
+```
+
+---
+
+## ⬆️ Updating the Application
+
+To update the application to the latest version:
+
+```bash
+# Pull the latest code
+git pull origin master
+
+# Rebuild and restart containers
+docker compose up -d --build
+```
+
+---
+
+## 🗑 Uninstalling
+
+To completely remove the application and its data:
+
+```bash
+# Stop and remove containers, networks
+docker compose down
+
+# Remove volumes (this deletes all data!)
+docker compose down -v
+
+# Remove the Docker image
+docker rmi complaints-app
+```
+
+---
+
+## 💾 Data Persistence
+
+The application stores data in the following locations:
+
+| Data | Location | Docker Volume |
+|------|----------|---------------|
+| SQLite Database | `./instance/db.sqlite3` | Mounted from host |
+| Redis Data | `/data` | `redis_data` volume |
+
+### Backup the Database
+
+```bash
+# Copy the database file
+cp ./instance/db.sqlite3 ./backup/db-$(date +%Y%m%d).sqlite3
+```
+
+### Restore from Backup
+
+```bash
+# Stop the app
+docker compose stop app
+
+# Restore the database
+cp ./backup/db-YYYYMMDD.sqlite3 ./instance/db.sqlite3
+
+# Start the app
+docker compose start app
+```
+
+---
+
+## 🌐 Production Deployment with Nginx
+
+For production, use Nginx as a reverse proxy in front of the Docker container.
+
+### Sample Nginx Configuration
+
+```nginx
+server {
+    listen 80;
+    server_name your.domain.com;
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
     }
-    ```
-
-    For HTTPS:
-
-    ```bash
-    server {
-          listen 80;
-          server_name your.subdomain.com;
-
-          # Redirect all HTTP to HTTPS
-          return 301 https://\$host\$request_uri;
-      }
-
-      server {
-          listen 443 ssl;
-          server_name your.subdomain.com;
-
-          ssl_certificate /etc/letsencrypt/live/your.subdomain.com/fullchain.pem;
-          ssl_certificate_key /etc/letsencrypt/live/your.subdomain.com/privkey.pem;
-
-          ssl_protocols TLSv1.2 TLSv1.3;
-          ssl_prefer_server_ciphers on;
-          ssl_ciphers HIGH:!aNULL:!MD5;
-
-          location / {
-              include proxy_params;
-              proxy_pass http://unix:/opt/complaints_app/complaints_app.sock;
-          }
-
-          location /static {
-              alias /opt/complaints_app/app/static;
-          }
-      }
-    ```
-
-    Enable the site and reload Nginx:
-
-    ```bash
-    sudo ln -s /etc/nginx/sites-available/complaints_app /etc/nginx/sites-enabled/
-    sudo nginx -t
-    sudo systemctl reload nginx
-    ```
-
-8. Adjust permissions.
-
-    ```bash
-    sudo chown -R complaints_user:www-data /opt/complaints_app
-    sudo chmod -R 750 /opt/complaints_app
-    sudo chmod 770 /opt/complaints_app/complaints_app.sock
-    ```
-
-9. Verify.
-    - Visit `http://your.subdomain.com` to check the app.
-
-    - Check logs if issues:
-
-      - Gunicorn: sudo journalctl -u complaints_app
-
-      - Nginx: /var/log/nginx/error.log
-
-## ⬆️ Updating the Website
-
-Update the website without affecting existing data or configuration.
-
-```bash
-curl -sSL https://raw.githubusercontent.com/qaduni/complaints/master/scripts/update_app.sh | sudo bash
+}
 ```
 
-## 🗑 Uninstallation
+### With HTTPS (SSL/TLS)
 
-Remove the website and all configurations:
+```nginx
+server {
+    listen 80;
+    server_name your.domain.com;
+    return 301 https://$host$request_uri;
+}
 
-```bash
-curl -sSL https://raw.githubusercontent.com/qaduni/complaints/master/scripts/uninstall_app.sh | sudo bash
+server {
+    listen 443 ssl;
+    server_name your.domain.com;
+
+    ssl_certificate /etc/letsencrypt/live/your.domain.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/your.domain.com/privkey.pem;
+
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers on;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
 ```
+
+---
 
 ## 📖 Usage
 
-1. Public Access
+1. **Public Access**
 
     - Open the landing page to submit a complaint.
-
     - After submission, save the tracking link to monitor complaint status.
 
-2. Admin Access
+2. **Admin Access**
 
-    - Visit /admin/login to sign in.
-
-    - Default Username `admin` and Password is `admin123`.
-
+    - Visit `/admin/login` to sign in.
+    - Default Username: `admin` (configurable via `DASHBOARD_USERNAME`)
+    - Default Password: `change-me-now` (configurable via `DASHBOARD_PASSWORD`)
     - Manage complaints and admin accounts from the dashboard.
-
     - Export complaints to Excel when needed.
+
+---
 
 ## 🔒 Security Notes
 
 - All forms are protected against CSRF attacks.
-
 - Public submissions and logins are rate-limited to prevent abuse.
-
 - Admin sessions are secured with HttpOnly cookies.
-
 - Passwords are hashed with bcrypt before storage.
-
 - Unique tracking tokens are generated securely.
+
+---
+
+## 🐛 Troubleshooting
+
+### Container keeps restarting
+
+Check the logs for errors:
+```bash
+docker compose logs app
+```
+
+### Database connection errors
+
+Ensure the `DATABASE_URL` uses an absolute path:
+```yaml
+- DATABASE_URL=sqlite:////app/instance/db.sqlite3
+```
+
+### Permission issues
+
+Make sure the `instance` directory exists and is writable:
+```bash
+mkdir -p instance
+```
+
+### Port already in use
+
+Change the port mapping in `docker-compose.yml`:
+```yaml
+ports:
+  - "8080:8000"  # Use port 8080 instead
+```
