@@ -1,5 +1,7 @@
 # Complaints Management Web Application
-
+![Python 3.14](img.shields.io)
+![Flask](img.shields.io)
+![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)
 A Flask-based web application for submitting and managing complaints.  
 Designed for Arabic-speaking users with RTL layout support.  
 
