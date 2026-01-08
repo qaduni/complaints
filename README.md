@@ -5,6 +5,9 @@ Designed for Arabic-speaking users with RTL layout support.
 
 This application is intended for universities and organizations to allow people to submit complaints anonymously, track their status, and for admins to manage them securely.
 
+![Python 3.14](https://img.shields.io/badge/python-3.14-blue?logo=python&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)
+
 ---
 
 ## ✨ Features
@@ -221,8 +224,23 @@ Create an A record in your DNS settings:
 
 For initial testing without SSL:
 
+<<<<<<< HEAD
 ```bash
 docker compose up -d --build
+=======
+    ssl_protocols TLSv1.3;
+    ssl_prefer_server_ciphers on;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+>>>>>>> 83cda3abd6fedab3a79e076198de7f936ccf9631
 ```
 
 Access your app at `http://your-domain.com`
