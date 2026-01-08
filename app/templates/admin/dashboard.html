@@ -90,6 +90,7 @@
             <td>{{ c.title }}</td>
             <td>
               <form method="POST" action="{{ url_for('admin.update_complaint', id=c.id) }}?page={{ complaints.page }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
                   <option value="waiting" {% if c.status=='waiting' %}selected{% endif %}>قيد الانتظار</option>
                   <option value="in process" {% if c.status=='in process' %}selected{% endif %}>قيد المعالجة</option>

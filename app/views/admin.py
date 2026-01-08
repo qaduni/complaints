@@ -15,7 +15,7 @@ def load_user(user_id):
     return AdminUser.query.get(int(user_id))
 
 @admin_bp.route("/login", methods=["GET", "POST"])
-@limiter.limit("5 per hour")
+@limiter.limit("10 per minute")
 def login():
     if current_user.is_authenticated:
         return redirect(url_for("admin.dashboard"))

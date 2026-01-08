@@ -193,56 +193,66 @@ docker compose start app
 
 ---
 
-## 🌐 Production Deployment with Nginx
+## 🌐 Production Deployment with HTTPS
 
-For production, use Nginx as a reverse proxy in front of the Docker container.
+This application includes integrated Nginx and Certbot containers for automatic SSL certificate management.
 
-### Sample Nginx Configuration
+### 1. Configure Your Domain
 
-```nginx
-server {
-    listen 80;
-    server_name your.domain.com;
+Update your `.env` file with your domain and email:
 
-    location / {
-        proxy_pass http://127.0.0.1:8000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
+```bash
+# Copy example and edit
+cp .env.example .env
+
+# Set your domain and email
+DOMAIN=complaints.yourdomain.com
+CERTBOT_EMAIL=admin@yourdomain.com
 ```
 
-### With HTTPS (SSL/TLS)
+### 2. Point Your Domain to Your Server
 
-```nginx
-server {
-    listen 80;
-    server_name your.domain.com;
-    return 301 https://$host$request_uri;
-}
+Create an A record in your DNS settings:
+- **Type**: A
+- **Name**: complaints (or your subdomain)
+- **Value**: Your server's IP address
 
-server {
-    listen 443 ssl;
-    server_name your.domain.com;
+### 3. Start the Application (HTTP Mode)
 
-    ssl_certificate /etc/letsencrypt/live/your.domain.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/your.domain.com/privkey.pem;
+For initial testing without SSL:
 
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_prefer_server_ciphers on;
-    ssl_ciphers HIGH:!aNULL:!MD5;
-
-    location / {
-        proxy_pass http://127.0.0.1:8000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
+```bash
+docker compose up -d --build
 ```
+
+Access your app at `http://your-domain.com`
+
+### 4. Enable HTTPS with Let's Encrypt
+
+Run the SSL initialization script:
+
+```bash
+chmod +x init-letsencrypt.sh
+./init-letsencrypt.sh
+```
+
+This script will:
+- Download recommended TLS parameters
+- Create a dummy certificate for Nginx to start
+- Request a real certificate from Let's Encrypt
+- Configure automatic certificate renewal
+
+### 5. Verify HTTPS
+
+Your site should now be accessible at `https://your-domain.com`
+
+### Certificate Auto-Renewal
+
+Certificates are automatically renewed by the Certbot container every 12 hours (only renews when needed).
+
+### Local Development (No SSL)
+
+For local testing, leave `DOMAIN=localhost` in your `.env` file. The app will run on HTTP at `http://localhost`
 
 ---
 

@@ -2,28 +2,65 @@ services:
   app:
     build: .
     container_name: complaints-app
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     environment:
-      - SECRET_KEY=change-this-to-a-secure-random-key
-      - DATABASE_URL=sqlite:////app/instance/db.sqlite3
-      - DASHBOARD_USERNAME=admin
-      - DASHBOARD_PASSWORD=change-me-now
+      - SECRET_KEY=${SECRET_KEY:-change-this-to-a-secure-random-key}
+      - DATABASE_URL=${DATABASE_URL:-sqlite:////app/instance/db.sqlite3}
+      - DASHBOARD_USERNAME=${DASHBOARD_USERNAME:-admin}
+      - DASHBOARD_PASSWORD=${DASHBOARD_PASSWORD:-change-me-now}
       - REDIS_URL=redis://redis:6379
     volumes:
       - ./instance:/app/instance
     depends_on:
       - redis
     restart: unless-stopped
+    networks:
+      - app-network
 
   redis:
     image: redis:7-alpine
     container_name: complaints-redis
-    ports:
-      - "6379:6379"
+    expose:
+      - "6379"
     volumes:
       - redis_data:/data
     restart: unless-stopped
+    networks:
+      - app-network
+
+  nginx:
+    build: ./nginx
+    container_name: complaints-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - DOMAIN=${DOMAIN:-localhost}
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt:ro
+      - ./certbot/www:/var/www/certbot:ro
+    depends_on:
+      - app
+    restart: unless-stopped
+    networks:
+      - app-network
+    command: >
+      /bin/sh -c "envsubst '$$DOMAIN' < /etc/nginx/templates/app-http.conf.template > /etc/nginx/conf.d/app.conf && nginx -g 'daemon off;'"
+
+  certbot:
+    image: certbot/certbot
+    container_name: complaints-certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
 
 volumes:
   redis_data:
