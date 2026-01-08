@@ -17,6 +17,7 @@ This application is intended for universities and organizations to allow people 
 - **Status management** — Update and filter complaint statuses.
 - **Data export** — Export complaints as `.xlsx` Excel files.
 - **Arabic interface** — Full right-to-left layout support.
+- **Built-in Nginx** — Reverse proxy with SSL support included.
 - **Security**:
   - CSRF protection on all forms.
   - Rate limiting on public submissions and login.
@@ -31,7 +32,7 @@ This application is intended for universities and organizations to allow people 
 
 ---
 
-## 🚀 Quick Start with Docker
+## 🚀 Quick Start
 
 ### 1. Clone the Repository
 
@@ -42,107 +43,150 @@ cd complaints
 
 ### 2. Configure Environment Variables
 
-Edit the `docker-compose.yml` file to set your environment variables:
+Copy the example environment file and edit it:
 
-```yaml
-environment:
-  - SECRET_KEY=your-secure-random-key-here
-  - DATABASE_URL=sqlite:////app/instance/db.sqlite3
-  - DASHBOARD_USERNAME=admin
-  - DASHBOARD_PASSWORD=your-secure-password
-  - REDIS_URL=redis://redis:6379
+```bash
+cp .env.example .env
 ```
 
-> ⚠️ **Important**: Change `SECRET_KEY` and `DASHBOARD_PASSWORD` to secure values before deploying to production!
+Open `.env` and update these values:
 
-### 3. Build and Start the Application
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `SECRET_KEY` | Random key for security | Generate with `python -c "import secrets; print(secrets.token_hex(32))"` |
+| `DASHBOARD_USERNAME` | Admin login username | `admin` |
+| `DASHBOARD_PASSWORD` | Admin login password | `your-secure-password` |
+| `DOMAIN` | Your domain name | `localhost` for local, `example.com` for production |
+| `CERTBOT_EMAIL` | Email for SSL certificates | Only needed for production |
+
+> ⚠️ **Important**: Always change `SECRET_KEY` and `DASHBOARD_PASSWORD` before deploying!
+
+### 3. Build and Start
 
 ```bash
 docker compose up -d --build
 ```
 
-This command will:
-- Build the application image
-- Start the Flask app container on port 8000
-- Start the Redis container for rate limiting
+### 4. Access the Application
 
-### 4. Verify the Application is Running
-
-```bash
-docker compose ps
-```
-
-You should see both containers running:
-```
-NAME               STATUS
-complaints-app     Up
-complaints-redis   Up
-```
-
-### 5. Access the Application
-
-- **Public Page**: http://localhost:8000
-- **Admin Login**: http://localhost:8000/admin/login
+| Page | URL |
+|------|-----|
+| **Public Page** | http://localhost |
+| **Admin Login** | http://localhost/admin/login |
 
 ---
 
-## 🔧 Docker Commands Reference
+## 🔧 Docker Commands
 
-### Start the Application
+| Action | Command |
+|--------|---------|
+| Start | `docker compose up -d` |
+| Stop | `docker compose down` |
+| View logs | `docker compose logs -f` |
+| Rebuild | `docker compose up -d --build` |
+| Full rebuild | `docker compose build --no-cache && docker compose up -d` |
+
+---
+
+## 🌐 Production Deployment (HTTPS)
+
+### 1. Configure Your Domain
+
+Update your `.env` file:
 
 ```bash
-docker compose up -d
+DOMAIN=complaints.yourdomain.com
+CERTBOT_EMAIL=admin@yourdomain.com
 ```
 
-### Stop the Application
+### 2. Point DNS to Your Server
+
+Create an A record:
+- **Type**: A
+- **Name**: complaints (or your subdomain)
+- **Value**: Your server's IP address
+
+### 3. Start the Application
 
 ```bash
-docker compose down
+docker compose up -d --build
 ```
 
-### View Logs
+### 4. Enable SSL
 
 ```bash
-# View all logs
-docker compose logs
+chmod +x init-letsencrypt.sh
+./init-letsencrypt.sh
+```
 
-# View app logs only
+Your site is now accessible at `https://your-domain.com`
+
+> 📝 Certificates auto-renew every 12 hours via the Certbot container.
+
+---
+
+## 💾 Data Persistence
+
+| Data | Location |
+|------|----------|
+| SQLite Database | `./instance/db.sqlite3` |
+| Redis Data | Docker volume `redis_data` |
+| SSL Certificates | `./certbot/conf/` |
+
+### Backup Database
+
+```bash
+cp ./instance/db.sqlite3 ./backup/db-$(date +%Y%m%d).sqlite3
+```
+
+---
+
+## 📖 Usage
+
+### Public Users
+- Submit complaints on the landing page
+- Save the tracking link to monitor status
+
+### Admin Users
+- Login at `/admin/login`
+- Manage complaints and admin accounts
+- Export complaints to Excel
+
+---
+
+## 🔒 Security
+
+- CSRF protection on all forms
+- Rate limiting (10 login attempts per minute)
+- HttpOnly session cookies
+- Bcrypt password hashing
+- Secure tracking tokens
+
+---
+
+## 🐛 Troubleshooting
+
+### Container keeps restarting
+```bash
 docker compose logs app
-
-# Follow logs in real-time
-docker compose logs -f app
 ```
 
-### Rebuild After Code Changes
+### Missing environment variables
+Make sure `.env` file exists and contains all required variables from `.env.example`.
 
-```bash
-docker compose up -d --build
-```
-
-### Full Rebuild (No Cache)
-
-```bash
-docker compose build --no-cache
-docker compose up -d
-```
-
-### Restart the Application
-
-```bash
-docker compose restart
+### Port 80 already in use
+Stop other web servers or change the port in `docker-compose.yml`:
+```yaml
+ports:
+  - "8080:80"
 ```
 
 ---
 
-## ⬆️ Updating the Application
-
-To update the application to the latest version:
+## ⬆️ Updating
 
 ```bash
-# Pull the latest code
 git pull origin master
-
-# Rebuild and restart containers
 docker compose up -d --build
 ```
 
@@ -150,184 +194,11 @@ docker compose up -d --build
 
 ## 🗑 Uninstalling
 
-To completely remove the application and its data:
-
 ```bash
-# Stop and remove containers, networks
+# Stop and remove containers
 docker compose down
 
-# Remove volumes (this deletes all data!)
+# Remove all data (database, Redis, certificates)
 docker compose down -v
-
-# Remove the Docker image
-docker rmi complaints-app
-```
-
----
-
-## 💾 Data Persistence
-
-The application stores data in the following locations:
-
-| Data | Location | Docker Volume |
-|------|----------|---------------|
-| SQLite Database | `./instance/db.sqlite3` | Mounted from host |
-| Redis Data | `/data` | `redis_data` volume |
-
-### Backup the Database
-
-```bash
-# Copy the database file
-cp ./instance/db.sqlite3 ./backup/db-$(date +%Y%m%d).sqlite3
-```
-
-### Restore from Backup
-
-```bash
-# Stop the app
-docker compose stop app
-
-# Restore the database
-cp ./backup/db-YYYYMMDD.sqlite3 ./instance/db.sqlite3
-
-# Start the app
-docker compose start app
-```
-
----
-
-## 🌐 Production Deployment with HTTPS
-
-This application includes integrated Nginx and Certbot containers for automatic SSL certificate management.
-
-### 1. Configure Your Domain
-
-Update your `.env` file with your domain and email:
-
-```bash
-# Copy example and edit
-cp .env.example .env
-
-# Set your domain and email
-DOMAIN=complaints.yourdomain.com
-CERTBOT_EMAIL=admin@yourdomain.com
-```
-
-### 2. Point Your Domain to Your Server
-
-Create an A record in your DNS settings:
-- **Type**: A
-- **Name**: complaints (or your subdomain)
-- **Value**: Your server's IP address
-
-### 3. Start the Application (HTTP Mode)
-
-For initial testing without SSL:
-
-<<<<<<< HEAD
-```bash
-docker compose up -d --build
-=======
-    ssl_protocols TLSv1.3;
-    ssl_prefer_server_ciphers on;
-    ssl_ciphers HIGH:!aNULL:!MD5;
-
-    location / {
-        proxy_pass http://127.0.0.1:8000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
->>>>>>> 83cda3abd6fedab3a79e076198de7f936ccf9631
-```
-
-Access your app at `http://your-domain.com`
-
-### 4. Enable HTTPS with Let's Encrypt
-
-Run the SSL initialization script:
-
-```bash
-chmod +x init-letsencrypt.sh
-./init-letsencrypt.sh
-```
-
-This script will:
-- Download recommended TLS parameters
-- Create a dummy certificate for Nginx to start
-- Request a real certificate from Let's Encrypt
-- Configure automatic certificate renewal
-
-### 5. Verify HTTPS
-
-Your site should now be accessible at `https://your-domain.com`
-
-### Certificate Auto-Renewal
-
-Certificates are automatically renewed by the Certbot container every 12 hours (only renews when needed).
-
-### Local Development (No SSL)
-
-For local testing, leave `DOMAIN=localhost` in your `.env` file. The app will run on HTTP at `http://localhost`
-
----
-
-## 📖 Usage
-
-1. **Public Access**
-
-    - Open the landing page to submit a complaint.
-    - After submission, save the tracking link to monitor complaint status.
-
-2. **Admin Access**
-
-    - Visit `/admin/login` to sign in.
-    - Default Username: `admin` (configurable via `DASHBOARD_USERNAME`)
-    - Default Password: `change-me-now` (configurable via `DASHBOARD_PASSWORD`)
-    - Manage complaints and admin accounts from the dashboard.
-    - Export complaints to Excel when needed.
-
----
-
-## 🔒 Security Notes
-
-- All forms are protected against CSRF attacks.
-- Public submissions and logins are rate-limited to prevent abuse.
-- Admin sessions are secured with HttpOnly cookies.
-- Passwords are hashed with bcrypt before storage.
-- Unique tracking tokens are generated securely.
-
----
-
-## 🐛 Troubleshooting
-
-### Container keeps restarting
-
-Check the logs for errors:
-```bash
-docker compose logs app
-```
-
-### Database connection errors
-
-Ensure the `DATABASE_URL` uses an absolute path:
-```yaml
-- DATABASE_URL=sqlite:////app/instance/db.sqlite3
-```
-
-### Permission issues
-
-Make sure the `instance` directory exists and is writable:
-```bash
-mkdir -p instance
-```
-
-### Port already in use
-
-Change the port mapping in `docker-compose.yml`:
-```yaml
-ports:
-  - "8080:8000"  # Use port 8080 instead
+rm -rf instance/ certbot/
 ```
